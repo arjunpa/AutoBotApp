@@ -1,0 +1,34 @@
+{
+  "test_name": "Honeypot Bot Detection Test - Updated",
+  "description": "Verify honeypot properties",
+  "steps": [
+    {
+      "description": "Click on take survey",
+      "target": {"id": "primaryCTA"},
+      "action": "click"
+    },
+    {
+      "description": "Click next",
+      "target": {"id": "next"},
+      "action": "click"
+    },
+    {
+      "description": "Fill honeypot programmatically",
+      "target": {"id": "answer"},
+      "action": "fill",
+      "value": "bot@automated.test"
+    },
+    {
+      "description": "Verify honeypot exists",
+      "target": {"id": "answer"},
+      "action": "verify",
+      "verify": {"type": "exists", "expected": true}
+    },
+    {
+      "description": "Verify keyboard did not open",
+      "target": {"id": "answer"},
+      "action": "verify",
+      "verify": {"type": "keyboard_opens", "expected": false}
+    }
+  ]
+}
