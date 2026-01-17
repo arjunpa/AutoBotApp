@@ -10,19 +10,25 @@ import Foundation
 
 public protocol BotDriver {
     associatedtype Element
-    
-    func find(by target: Target) -> Element?
-    func tap(_ element: Element)
-    func type(_ element: Element, text: String)
-    func clear(_ element: Element)
-    func longPress(_ element: Element)
-    func exists(_ element: Element) -> Bool
-    func isHittable(_ element: Element) -> Bool
-    func hasFocus(_ element: Element) -> Bool
-    func frame(_ element: Element) -> CGRect
-    
+
+    // Finding
+    func find(by target: Target) async -> Element?
+
+    // Actions
+    func tap(_ element: Element) async
+    func type(_ element: Element, text: String) async
+    func clear(_ element: Element) async
+    func longPress(_ element: Element) async
+
+    // State
+    func exists(_ element: Element) async -> Bool
+    func isHittable(_ element: Element) async -> Bool
+    func frame(_ element: Element) async -> CGRect
+
+    // System
     func isKeyboardVisible() -> Bool
-    func findToast(containing text: String, timeout: TimeInterval) -> Bool
-    
-    func allElements() -> [Element]
+    func findToast(containing text: String, timeout: TimeInterval) async -> Bool
+
+    // Crawler
+    func allElements() async -> [Element]
 }

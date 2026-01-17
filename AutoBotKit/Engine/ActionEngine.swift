@@ -31,36 +31,36 @@ public final class ActionEngine<Driver: BotDriver> {
         self.verifier = VerifyEngine(driver: driver)
     }
 
-    public func execute(step: Step) throws {
+    public func execute(step: Step) async throws {
 
         switch step.action {
 
         case .click:
-            guard let el = driver.find(by: step.target!) else {
+            guard let el = await driver.find(by: step.target!) else {
                 throw BotError.elementNotFound
             }
-            driver.tap(el)
+            await driver.tap(el)
 
         case .fill:
-            guard let el = driver.find(by: step.target!) else {
+            guard let el = await driver.find(by: step.target!) else {
                 throw BotError.elementNotFound
             }
-            driver.type(el, text: step.value ?? "")
+            await driver.type(el, text: step.value ?? "")
 
         case .clear:
-            guard let el = driver.find(by: step.target!) else {
+            guard let el = await driver.find(by: step.target!) else {
                 throw BotError.elementNotFound
             }
-            driver.clear(el)
+            await driver.clear(el)
 
         case .check:
-            guard let el = driver.find(by: step.target!) else {
+            guard let el = await driver.find(by: step.target!) else {
                 throw BotError.elementNotFound
             }
-            driver.tap(el)
+            await driver.tap(el)
 
         case .verify:
-            let ok = verifier.verify(target: step.target, verify: step.verify!)
+            let ok = await verifier.verify(target: step.target, verify: step.verify!)
             if !ok {
                 throw BotError.verificationFailed(step.verify!.type)
             }

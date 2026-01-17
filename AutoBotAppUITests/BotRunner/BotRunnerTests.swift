@@ -10,24 +10,24 @@ import AutoBotKit
 
 final class BotRunnerTests: XCTestCase {
 
-    func testSequentialCrawl() {
-        let app = XCUIApplication()
-        app.launch()
+    func testSequentialCrawl() async {
+        let app = await XCUIApplication()
+        await app.launch()
 
         let driver = XCUITestDriver(app: app)
         let crawler = SequentialCrawler(driver: driver)
 
-        crawler.crawl()
+        await crawler.crawl()
     }
 
-    func testHoneypotBotDetection() {
-        let app = XCUIApplication()
-        app.launch()
+    func testHoneypotBotDetection() async {
+        let app = await XCUIApplication()
+        await app.launch()
 
         let spec = JSONLoader.loadTest(named: "honeypot")
         let driver = XCUITestDriver(app: app)
         let engine = BotEngine(driver: driver)
 
-        engine.run(test: spec)
+        await engine.run(test: spec)
     }
 }

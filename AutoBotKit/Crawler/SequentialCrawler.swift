@@ -8,46 +8,59 @@
 import Foundation
 import CoreGraphics
 
-public class SequentialCrawler<Driver: BotDriver> {
-    
+public final class SequentialCrawler<Driver: BotDriver> {
+
     private let driver: Driver
-    
+    private let logger = BotLogger()
     private var processed = Set<String>()
-    
+
     public init(driver: Driver) {
         self.driver = driver
     }
-    
-    public func crawl() {
-        let elements = driver.allElements()
-        
-        let sorted = elements.sorted {
-            let f1 = driver.frame($0)
-            let f2 = driver.frame($1)
-            
-            
-            if abs(f1.minX - f2.minY) < 5 {
-                return f1.minX < f2.minX
+
+    public func crawl(maxSteps: Int = 100) async {
+
+        logger.startTest(
+            name: "Sequential Crawl",
+            description: "Autonomous UI exploration"
+        )
+
+        let elements = await driver.allElements()
+
+        // ✅ Precompute frames asynchronously
+        var framedElements: [(element: Driver.Element, frame: CGRect)] = []
+        framedElements.reserveCapacity(elements.count)
+
+        for element in elements {
+            let frame = await driver.frame(element)
+            framedElements.append((element, frame))
+        }
+
+        // ✅ Sort synchronously (NO async here)
+        let sorted = framedElements.sorted {
+            if abs($0.frame.minY - $1.frame.minY) < 5 {
+                return $0.frame.minX < $1.frame.minX
             }
-            
-            return f1.minY < f2.minY
+            return $0.frame.minY < $1.frame.minY
         }
-        
-        for el in sorted {
-            let sig = signature(for: el)
-            if processed.contains(sig) { continue }
-            processed.insert(sig)
+
+        var stepIndex = 0
+
+        for (element, frame) in sorted {
+            if stepIndex >= maxSteps { break }
+
+            let signature = "\(frame.origin.x)_\(frame.origin.y)_\(frame.width)_\(frame.height)"
+            if processed.contains(signature) { continue }
+            processed.insert(signature)
+
+            logger.step(stepIndex, "Crawler tap")
+
+            await driver.tap(element)
+            logger.success()
+
+            stepIndex += 1
         }
-    }
-    
-    private func signature(for el: Driver.Element) -> String {
-        let f = driver.frame(el)
-        return "\(f.origin.x)_\(f.origin.y)_\(f.width)_\(f.height)"
-    }
-    
-    private func interact(with el: Driver.Element) {
-        if driver.isHittable(el) {
-            driver.tap(el)
-        }
+
+        logger.endTest(passed: stepIndex, total: stepIndex)
     }
 }
